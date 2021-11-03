@@ -182,11 +182,13 @@ public class ServerListener extends Thread {
     {
         //daca fisierul nu e .html poti trimite un raspuns de tip Bad Request
         //filename is '/' or ''?=>vezi daca exista index.html,index.htm etc. si daca exista filename = ala care exista daca nu exista => not found!!
-        if(!(filename.endsWith(".html"))||!(filename.endsWith(".htm"))||!(filename.endsWith(".css"))){
+        if(!(filename.endsWith(".html"))&&!(filename.endsWith(".htm"))&&!(filename.endsWith(".css"))){
             if(filename.endsWith("/"))
                 sendFileContent(socket,"index.html");
-            else
-                sendBadRequestContent(socket,filename);
+            else {
+                sendBadRequestContent(socket, filename);
+                return;
+            }
         }
         System.out.println(filename);
 
