@@ -1,4 +1,5 @@
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -20,16 +21,13 @@ public class ServerListenerTest {
             e.printStackTrace();
         }
     }
-
     @Test
     public void findFileInDirectoryTrue(){
-        File f = new File("test_server/cdasmndasnf.html");
         try {
-            assertEquals(sl.findFileInDirectory("/cdasmndasnf.html").getPath(), "test_server\\cdasmndasnf.html");
+            assertEquals(sl.findFileInDirectory("/c.html").getPath(), "test_server\\aaa\\bbb\\c.html");
         } catch (IOException e) {
             fail("The file was not found");
         }
-        f.delete();
     }
 
     @Test
