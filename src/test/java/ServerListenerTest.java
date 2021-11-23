@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,10 +22,11 @@ public class ServerListenerTest {
     private static ServerListener sl;
     private String directory = "test_server";
     private static Socket mockSocket;
-    private static ByteArrayOutputStream mockOutput;
+    private ByteArrayOutputStream mockOutput;
     @BeforeClass
     public static void beforeClass() {
         mockSocket = new Socket();
+        mockSocket = mock(Socket.class);
         try {
             sl = new ServerListener(10008);
         } catch (IOException e) {
@@ -33,7 +35,6 @@ public class ServerListenerTest {
     }
     @Before
     public void socketSetup() throws IOException {
-        mockSocket = mock(Socket.class);
         mockOutput = new ByteArrayOutputStream();
         when(mockSocket.getOutputStream()).thenReturn(mockOutput);
     }
@@ -41,7 +42,9 @@ public class ServerListenerTest {
     public void testFindFileInDirectoryTrue(){
         Path path = Paths.get(directory + "\\aaa\\bbb\\m.html");
         try {
-            Files.createDirectories(path.getParent());
+            Path p = path.getParent();
+            if(p!=null)
+               Files.createDirectories(p);
             if(!Files.exists(path))
                 Files.createFile(path);
             File f = sl.findFileInDirectory("/m.html");
@@ -85,10 +88,9 @@ public class ServerListenerTest {
     public void testSendContent(){
         String content = "Content to send";
         try {
-            PrintWriter outputWriter = new PrintWriter(mockSocket.getOutputStream(), true);
 
             sl.sendContent(mockSocket, content);
-            assertEquals(mockOutput.toString(),"HTTP/1.1 200 OK\r\n" +
+            assertEquals(mockOutput.toString(StandardCharsets.UTF_8),"HTTP/1.1 200 OK\r\n" +
                     "Content-Length: 15\r\n" +
                     "\r\n" +
                     "Content to send\r\n\r\n");
@@ -103,10 +105,9 @@ public class ServerListenerTest {
     public void testSendForbiddenContent(){
         String content = "a.html";
         try {
-            PrintWriter outputWriter = new PrintWriter(mockSocket.getOutputStream(), true);
 
             sl.sendForbiddenContent(mockSocket, content);
-            assertEquals(mockOutput.toString(),"HTTP/1.0 403 Forbidden\r\n"+
+            assertEquals(mockOutput.toString(StandardCharsets.UTF_8),"HTTP/1.0 403 Forbidden\r\n"+
                     "Could not read from "+content+"\n");
         }catch(Exception e)
         {
@@ -119,10 +120,9 @@ public class ServerListenerTest {
     public void testSendBadRequestContent(){
         String content = "a.html";
         try {
-            PrintWriter outputWriter = new PrintWriter(mockSocket.getOutputStream(), true);
 
             sl.sendBadRequestContent(mockSocket, content);
-            assertEquals(mockOutput.toString(),"HTTP/1.0 400 Bad request"+"\r\n"+
+            assertEquals(mockOutput.toString(StandardCharsets.UTF_8),"HTTP/1.0 400 Bad request"+"\r\n"+
                     "File "+content+" has the wrong extension!\n");
         }catch(Exception e)
         {
@@ -136,10 +136,9 @@ public class ServerListenerTest {
         String filename = "a.html";
         String type = "text/html";
         try {
-            PrintWriter outputWriter = new PrintWriter(mockSocket.getOutputStream(), true);
 
             sl.sendFailContent(mockSocket, filename);
-            assertEquals(mockOutput.toString(),"HTTP/1.0 404 Not Found"+"\r\n"+
+            assertEquals(mockOutput.toString(StandardCharsets.UTF_8),"HTTP/1.0 404 Not Found"+"\r\n"+
                     "Content-type: "+type+"\r\n\r\n"+
                     "File "+filename+" not found!\n");
         }catch(Exception e)

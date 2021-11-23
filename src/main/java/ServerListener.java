@@ -1,9 +1,12 @@
+import java.lang.String;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,9 +32,9 @@ public class ServerListener extends Thread {
 
                 LOGGER.info(" * Connection accepted: " + socket.getInetAddress());
                 PrintWriter out = new PrintWriter(socket.getOutputStream(),
-                        true);
+                        true,StandardCharsets.UTF_8);
                 BufferedReader in = new BufferedReader(new InputStreamReader(
-                        socket.getInputStream()));
+                        socket.getInputStream(),"UTF-8"));
 
                 String inputLine;
                 inputLine = in.readLine();
@@ -88,12 +91,12 @@ public class ServerListener extends Thread {
 
             String response =
                     "HTTP/1.1 200 OK" + CRLF + // Status Line  :   HTTTP_VERSION RESPONSE_CODE RESPONSE_MESSAGE
-                            "Content-Length: " + html.getBytes().length + CRLF + // HEADER
+                            "Content-Length: " + html.getBytes(StandardCharsets.UTF_8).length + CRLF + // HEADER
                             CRLF +
                             html +
                             CRLF + CRLF;
 
-            outputStream.write(response.getBytes());
+            outputStream.write(response.getBytes(StandardCharsets.UTF_8));
 
             LOGGER.info(" * Connection Processing Finished.");
         } catch (IOException e) {
@@ -119,7 +122,7 @@ public class ServerListener extends Thread {
                             "Content-type: "+type+CRLF+CRLF+
                             "File "+filename+" not found!\n";
 
-            outputStream.write(response.getBytes());
+            outputStream.write(response.getBytes(StandardCharsets.UTF_8));
 
             LOGGER.info(" * Connection Processing Finished.");
         } catch (IOException e) {
@@ -137,7 +140,7 @@ public class ServerListener extends Thread {
                     "HTTP/1.0 403 Forbidden"+CRLF+
                             "Could not read from "+filename+"\n";
 
-            outputStream.write(response.getBytes());
+            outputStream.write(response.getBytes(StandardCharsets.UTF_8));
 
             LOGGER.info(" * Connection Processing Finished.");
         } catch (IOException e) {
@@ -154,7 +157,7 @@ public class ServerListener extends Thread {
                     "HTTP/1.0 400 Bad request"+CRLF+
                             "File "+filename+" has the wrong extension!\n";
 
-            outputStream.write(response.getBytes());
+            outputStream.write(response.getBytes(StandardCharsets.UTF_8));
 
             LOGGER.info(" * Connection Processing Finished.");
         } catch (IOException e) {
@@ -192,27 +195,28 @@ public class ServerListener extends Thread {
         }
         System.out.println(filename);
 
-        String continutFisier = "";
+        StringBuilder continutFisier = new StringBuilder();
         //citire de fisier
         try {
 
-                 BufferedReader in = new BufferedReader(new FileReader("test_server/"+filename));
+                 BufferedReader in = new BufferedReader(new FileReader("test_server/"+filename,StandardCharsets.UTF_8));
                  String str;
                  while ((str = in.readLine()) != null) {
-                     continutFisier +=str;
+
+                     continutFisier.append(str);
                  }
                  in.close();
-                 sendContent(socket,continutFisier);
+                 sendContent(socket,continutFisier.toString());
 
         } catch (IOException e) {
             try {
-                BufferedReader in = new BufferedReader(new FileReader(findFileInDirectory(filename)));
+                BufferedReader in = new BufferedReader(new FileReader(findFileInDirectory(filename),StandardCharsets.UTF_8));
                 String str;
                 while ((str = in.readLine()) != null) {
-                    continutFisier +=str;
+                    continutFisier.append(str);
                 }
                 in.close();
-                sendContent(socket,continutFisier);
+                sendContent(socket,continutFisier.toString());
             } catch (IOException ex){
                 sendForbiddenContent(socket,filename);
                 LOGGER.error("Failed to read from file", ex);//403 forbidden
