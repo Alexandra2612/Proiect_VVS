@@ -1,13 +1,11 @@
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
+import server.ServerListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,7 +26,7 @@ public class ServerListenerTest {
         mockSocket = new Socket();
         mockSocket = mock(Socket.class);
         try {
-            sl = new ServerListener(10008);
+            sl = new ServerListener();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,7 +75,7 @@ public class ServerListenerTest {
                 success=1;
             }
         }
-        ServerListenerMock serverListenerMock = new ServerListenerMock(10009) ;
+        ServerListenerMock serverListenerMock = new ServerListenerMock(20000) ;
 
         serverListenerMock.sendFileContent(null, "woaaah");
         assertEquals(1,serverListenerMock.success);

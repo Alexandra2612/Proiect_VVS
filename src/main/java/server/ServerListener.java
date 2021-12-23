@@ -1,11 +1,14 @@
+package server;
+
 import java.lang.String;
+
+import gui.Gui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,14 +16,18 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static gui.Gui.*;
+import static server.SocketInit.*;
+import static server.SocketInit.port;
+
 public class ServerListener extends Thread {
     private final static Logger LOGGER = LoggerFactory.getLogger(ServerListener.class);
-    private int port;
-    private ServerSocket serverSocket;
-
+    public static ServerSocket serverSocket;
+    public ServerListener() throws IOException {
+        this.serverSocket = new ServerSocket(port);
+    }
     public ServerListener(int port) throws IOException {
-        this.port = port;
-        this.serverSocket = new ServerSocket(this.port);
+        this.serverSocket = new ServerSocket(port);
     }
 
     @Override
@@ -164,10 +171,10 @@ public class ServerListener extends Thread {
             LOGGER.error("Problem with communication", e);
         }
     }
-    public File findFileInDirectory(String filename) throws IOException {
+    public static File findFileInDirectory(String filename) throws IOException {
         String path1 = filename.replace("/","\\");
         String path2 = path1.replaceAll("%20"," ");
-        List<Path> files = Files.walk(Paths.get("test_server"))
+        List<Path> files = Files.walk(Paths.get(maintenance ? maintenanceDir:rootDir))
                 .filter(Files::isRegularFile)
                 .filter(path -> path.toString().endsWith(path2))
                 .collect(Collectors.toList());
@@ -199,7 +206,7 @@ public class ServerListener extends Thread {
         //citire de fisier
         try {
 
-                 BufferedReader in = new BufferedReader(new FileReader("test_server/"+filename,StandardCharsets.UTF_8));
+                 BufferedReader in = new BufferedReader(new FileReader(maintenance ? (maintenanceDir + "/index.html"):(rootDir +"/ "+filename),StandardCharsets.UTF_8));
                  String str;
                  while ((str = in.readLine()) != null) {
 
