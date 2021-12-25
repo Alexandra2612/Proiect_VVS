@@ -121,7 +121,7 @@ public class Gui extends JFrame {
                 System.out.println(text);
                 rootDir = text;
                 try {
-                    if (validateRootDirectory(text)) {
+                    if (validateRootDir(text)) {
                         ValidateRoot.setText("The root directory exists");
                         startServerButton.setEnabled(true);
                         lastsetRoot = text;
@@ -139,7 +139,7 @@ public class Gui extends JFrame {
         });
 
     }
-    private boolean validateRootDirectory(String text) throws IOException {
+    private boolean validateRootDir(String text) throws IOException {
         rootDir = text;
         String path1 = rootDir.replace("/","\\");
         File file = new File(path1);
