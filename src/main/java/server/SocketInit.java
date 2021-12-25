@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class SocketInit {
     private final static Logger LOGGER = LoggerFactory.getLogger(SocketInit.class);
-    public static int port = 10051;
+    public static int port = 10001;
     public static void main(String[] args) {
 
         LOGGER.info("Server starting...");
